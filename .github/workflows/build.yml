@@ -27,7 +27,7 @@ jobs:
         run: npm run build
 
       - name: Upload built plugin
-        uses: actions/upload-artifact@v3.1.3
+        uses: actions/upload-artifact@v2
         with:
           name: obsidian-toc-enhancer
           path: |
