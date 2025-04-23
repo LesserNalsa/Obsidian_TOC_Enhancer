@@ -1,94 +1,71 @@
-# Obsidian Sample Plugin
+# TOC Enhancer
 
-This is a sample plugin for Obsidian (https://obsidian.md).
+**TOC Enhancer**는 Obsidian 내에서 `목차(TOC)` 목록을 기반으로 각 항목에 대응하는 헤더와 ID를 자동 생성해주는 플러그인입니다.  
+또한 각 섹션 끝에는 "목차로 돌아가기" 링크도 자동 삽입됩니다.
 
-This project uses TypeScript to provide type checking and documentation.
-The repo depends on the latest plugin API (obsidian.d.ts) in TypeScript Definition format, which contains TSDoc comments describing what it does.
+---
 
-This sample plugin demonstrates some of the basic functionality the plugin API can do.
-- Adds a ribbon icon, which shows a Notice when clicked.
-- Adds a command "Open Sample Modal" which opens a Modal.
-- Adds a plugin setting tab to the settings page.
-- Registers a global click event and output 'click' to the console.
-- Registers a global interval which logs 'setInterval' to the console.
+## ✨ 주요 기능
 
-## First time developing plugins?
+- `## 목차` 하단의 `- [제목]` 항목을 탐색
+- 각 항목에 대응하는 `## 제목 ^section-id` 자동 삽입
+- 목차 항목은 자동으로 `[제목](#^section-id)` 형식으로 링크화
+- 각 섹션 하단에 `[🔼 목차로](#^목차)` 자동 삽입
 
-Quick starting guide for new plugin devs:
+---
 
-- Check if [someone already developed a plugin for what you want](https://obsidian.md/plugins)! There might be an existing plugin similar enough that you can partner up with.
-- Make a copy of this repo as a template with the "Use this template" button (login to GitHub if you don't see it).
-- Clone your repo to a local development folder. For convenience, you can place this folder in your `.obsidian/plugins/your-plugin-name` folder.
-- Install NodeJS, then run `npm i` in the command line under your repo folder.
-- Run `npm run dev` to compile your plugin from `main.ts` to `main.js`.
-- Make changes to `main.ts` (or create new `.ts` files). Those changes should be automatically compiled into `main.js`.
-- Reload Obsidian to load the new version of your plugin.
-- Enable plugin in settings window.
-- For updates to the Obsidian API run `npm update` in the command line under your repo folder.
+## 🛠 사용 방법
 
-## Releasing new releases
+1. 문서에 다음과 같은 목차를 작성하세요:
 
-- Update your `manifest.json` with your new version number, such as `1.0.1`, and the minimum Obsidian version required for your latest release.
-- Update your `versions.json` file with `"new-plugin-version": "minimum-obsidian-version"` so older versions of Obsidian can download an older version of your plugin that's compatible.
-- Create new GitHub release using your new version number as the "Tag version". Use the exact version number, don't include a prefix `v`. See here for an example: https://github.com/obsidianmd/obsidian-sample-plugin/releases
-- Upload the files `manifest.json`, `main.js`, `styles.css` as binary attachments. Note: The manifest.json file must be in two places, first the root path of your repository and also in the release.
-- Publish the release.
+    ```markdown
+    ## 목차
+    - [제안 배경]
+    - [문제 정의]
+    ```
 
-> You can simplify the version bump process by running `npm version patch`, `npm version minor` or `npm version major` after updating `minAppVersion` manually in `manifest.json`.
-> The command will bump version in `manifest.json` and `package.json`, and add the entry for the new version to `versions.json`
+2. 커맨드 팔레트 (`Ctrl/Cmd + P`)에서 다음을 실행하세요:
+    ```
+    Generate TOC-linked Sections
+    ```
 
-## Adding your plugin to the community plugin list
+3. 자동으로 다음과 같은 형식이 생성됩니다:
 
-- Check the [plugin guidelines](https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines).
-- Publish an initial version.
-- Make sure you have a `README.md` file in the root of your repo.
-- Make a pull request at https://github.com/obsidianmd/obsidian-releases to add your plugin.
+    ```markdown
+    ## 제안 배경 ^section-제안-배경
 
-## How to use
+    내용...
 
-- Clone this repo.
-- Make sure your NodeJS is at least v16 (`node --version`).
-- `npm i` or `yarn` to install dependencies.
-- `npm run dev` to start compilation in watch mode.
+    [🔼 목차로](#^목차)
+    ```
 
-## Manually installing the plugin
+---
 
-- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
+## 🔧 설치 방법
 
-## Improve code quality with eslint (optional)
-- [ESLint](https://eslint.org/) is a tool that analyzes your code to quickly find problems. You can run ESLint against your plugin to find common bugs and ways to improve your code. 
-- To use eslint with this project, make sure to install eslint from terminal:
-  - `npm install -g eslint`
-- To use eslint to analyze this project use this command:
-  - `eslint main.ts`
-  - eslint will then create a report with suggestions for code improvement by file and line number.
-- If your source code is in a folder, such as `src`, you can use eslint with this command to analyze all files in that folder:
-  - `eslint .\src\`
+1. 이 플러그인을 다운로드하여 다음 경로에 복사:
+    ```
+    <your-vault>/.obsidian/plugins/toc-enhancer/
+    ```
 
-## Funding URL
+2. `manifest.json`, `main.js` 파일이 포함되어야 합니다.
+3. Obsidian을 재시작한 후, `설정 > 커뮤니티 플러그인`에서 활성화
 
-You can include funding URLs where people who use your plugin can financially support it.
+---
 
-The simple way is to set the `fundingUrl` field to your link in your `manifest.json` file:
+## 💡 개발 및 기여
 
-```json
-{
-    "fundingUrl": "https://buymeacoffee.com"
-}
-```
+GitHub: [LesserNalsa/Obsidian_TOC_Enhancer](https://github.com/LesserNalsa/Obsidian_TOC_Enhancer)
 
-If you have multiple URLs, you can also do:
+Pull Requests 및 개선 제안 환영합니다 🙌
 
-```json
-{
-    "fundingUrl": {
-        "Buy Me a Coffee": "https://buymeacoffee.com",
-        "GitHub Sponsor": "https://github.com/sponsors",
-        "Patreon": "https://www.patreon.com/"
-    }
-}
-```
+---
 
-## API Documentation
+## 📜 라이선스
 
-See https://github.com/obsidianmd/obsidian-api
+본 플러그인은 [Obsidian Sample Plugin](https://github.com/obsidianmd/obsidian-sample-plugin)을 기반으로 개발되었으며,  
+해당 프로젝트의 BSD 3-Clause 라이선스를 그대로 따릅니다.
+
+- 원 프로젝트 라이선스: BSD-3-Clause  
+- 이 프로젝트에 추가된 기능은 원 라이선스 조항을 따릅니다.  
+- 상단 LICENSE 파일을 참조하세요
