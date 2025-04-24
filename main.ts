@@ -1,4 +1,5 @@
 import { Plugin } from 'obsidian';
+import { generateTOCLinkeedSectons } from './updater';
 
 export default class TOCEnchancerPlugin extends Plugin {
 
@@ -6,7 +7,11 @@ export default class TOCEnchancerPlugin extends Plugin {
 		this.addCommand({
 			id: "generate-toc-linked-section",
 			name: "Generate TOC-linked sections",
-			callback: () => this.processEditor(),
+			callback: async () => {
+				const activeView = this.app.workspace.getActiveViewOfType(MarkdownView);
+				if(!activeView) return;
+				await generateTOCLinkeedSectons(activeView);
+			},
 		})
 	}
 
