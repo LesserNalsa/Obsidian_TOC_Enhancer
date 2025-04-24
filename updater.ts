@@ -1,6 +1,5 @@
-import { TOCNode } from "./parser";
+import { TOCNode, parseTOCFromMarkdown, IS_ORDERED_LIST_REGEX } from "./parser";
 import { MarkdownView } from "obsidian";
-import { parseTOCFromMarkdown } from "./parser";
 
 export async function generateTOCLinkedSections(view: MarkdownView) {
   const file = view.file;
@@ -12,16 +11,16 @@ export async function generateTOCLinkedSections(view: MarkdownView) {
   const updatedLines = content.split("\n");
   const insertedLines: string[] = [];
 
-  function insertSection(node: TOCNode, level: number) {
-    const id = slugify(node.title);
-    const headingPrefix = "#".repeat(level);
-    insertedLines.push(`${headingPrefix} ${node.title} ^${id}`);
-    insertedLines.push("");
-    for (const child of node.children) {
-      insertSection(child, level + 1);
+  const existingTItles = new Set<string>();
+  for (const line of updatedLines) {
+    const match = line.match(/^#+\s+(.*?)(\s+\^.*)?$/);
+    if (match) {
+      const title = match[1].trim();
+      existingTItles.add(title);
     }
   }
 
+  
   const headerIndex = updatedLines.findIndex((line) =>
     line.trim().startsWith("## 목차")
   );
@@ -30,22 +29,43 @@ export async function generateTOCLinkedSections(view: MarkdownView) {
   const tocStart = headerIndex + 1;
   let tocEnd = tocStart;
   while (
-    tocEnd < updatedLines.length &&
-    (/^(\s*)([-*]|\d+(\.\d+)*\.)\s+(.*)$/.test(updatedLines[tocEnd]) || updatedLines[tocEnd].trim() === "")
+      tocEnd < updatedLines.length &&
+      (/^\s*(([-*])|(\d+(\.\d+)*\.))\s+/.test(updatedLines[tocEnd]) || updatedLines[tocEnd].trim() === "")
   ) {
-    tocEnd++;
+      tocEnd++;
   }
 
   const linkifiedTOC = tocTree.map(node => linkifyTOCNode(node)).flat();
   updatedLines.splice(tocStart, tocEnd - tocStart, ...linkifiedTOC);
-
+  
   insertedLines.push("", "---", "");
   for (const node of tocTree) {
-    insertSection(node, 2);
-  }
+      insertSection(node, 2);
+    }
+    
+    const newContent = [...updatedLines, ...insertedLines].join("\n");
+    await view.app.vault.modify(file, newContent);
 
-  const newContent = [...updatedLines, ...insertedLines].join("\n");
-  await view.app.vault.modify(file, newContent);
+    function insertSection(node: TOCNode, level: number) {
+      const id = slugify(node.title);
+
+      if (!existingTItles.has(node.title)) {
+        const headingPrefix = "#".repeat(level);
+        insertedLines.push(`${headingPrefix} ${node.listSymbol}. ${node.title} ^${id}`);
+        insertedLines.push(`[🔝 목차로](#목차)`);
+        insertedLines.push("");
+      }
+
+      const isOrdered = IS_ORDERED_LIST_REGEX.test(node.listSymbol);
+      const symbolBase = isOrdered ? "." : node.listSymbol;
+      node.children.forEach((child, index) => {
+        const prefix = isOrdered ? `${index + 1}${symbolBase}` : symbolBase;
+        insertedLines.push(`${prefix} ${child.title} ^${slugify(child.title)}`);
+      });
+
+      insertedLines.push("");
+      node.children.forEach(child => insertSection(child, level + 1));
+    }
 }
 
 function slugify(text: string): string {
