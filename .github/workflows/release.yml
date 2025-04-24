@@ -30,7 +30,7 @@ jobs:
     - name: Install & Build
       run: |
         npm ci
-        npm run build          # main.ts → dist/main.js
+        npm run build          # main.ts → main.js
 
     # 4) 배포 패키지(zip) 만들기
     - name: Package plugin
