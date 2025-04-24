@@ -22,6 +22,6 @@
 		"typescript": "4.7.4"
 	},
 	"dependencies": {
-		"hangul-romanize": "^0.3.2"
+		"@romanize/korean": "^0.1.1"
 	}
 }
