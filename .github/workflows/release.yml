@@ -1,0 +1,44 @@
+name: Build & Release TOC Enhancer
+
+on:
+  push:
+    tags:
+      - 'v*'           # v1.0.0, v1.1 등 SemVer 태그 푸시될 때만 실행
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1) 저장소 체크아웃
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    # 2) Node 세팅 (필요 Node 버전 맞춰서)
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
+
+    # 3) 의존성 설치 & 빌드 → main.js 생성
+    - name: Install & Build
+      run: |
+        npm ci
+        npm run build          # main.ts → dist/main.js
+
+    # 4) 배포 패키지(zip) 만들기
+    - name: Package plugin
+      run: |
+        mkdir release
+        cp dist/main.js manifest.json styles.css README.md release/
+        cd release && zip -r ../toc-enhancer-${{ github.ref_name }}.zip . && cd ..
+
+    # 5) Release 생성 + zip 첨부
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: toc-enhancer-${{ github.ref_name }}.zip
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}   # repo 기본 제공 토큰 사용
