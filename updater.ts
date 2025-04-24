@@ -1,5 +1,6 @@
 import { TOCNode } from "./parser";
-import { MarkdownView, TFile, App } from "obsidian";
+import { MarkdownView } from "obsidian";
+import { parseTOCFromMarkdown } from "./parser";
 
 export async function generateTOCLinkedSections(view: MarkdownView) {
   const file = view.file;
@@ -21,22 +22,26 @@ export async function generateTOCLinkedSections(view: MarkdownView) {
     }
   }
 
-  const headerIndex = updatedLines.findIndex((line) => line.trim().startsWith("## 목차"));
+  const headerIndex = updatedLines.findIndex((line) =>
+    line.trim().startsWith("## 목차")
+  );
+  if (headerIndex === -1) return;
+
   const tocStart = headerIndex + 1;
   let tocEnd = tocStart;
-  while (tocEnd < updatedLines.length && /^\s*([-*]|\d+\.)\s+/.test(updatedLines[tocEnd])) {
+  while (
+    tocEnd < updatedLines.length &&
+    (/^(\s*)([-*]|\d+(\.\d+)*\.)\s+(.*)$/.test(updatedLines[tocEnd]) || updatedLines[tocEnd].trim() === "")
+  ) {
     tocEnd++;
   }
 
-  const tocSection = updatedLines.slice(tocStart, tocEnd);
   const linkifiedTOC = tocTree.map(node => linkifyTOCNode(node)).flat();
-
   updatedLines.splice(tocStart, tocEnd - tocStart, ...linkifiedTOC);
 
-  // append missing sections at the end of the document (or could be more intelligent in the future)
   insertedLines.push("", "---", "");
   for (const node of tocTree) {
-    insertSection(node, 2); // start at ## level
+    insertSection(node, 2);
   }
 
   const newContent = [...updatedLines, ...insertedLines].join("\n");
@@ -44,15 +49,15 @@ export async function generateTOCLinkedSections(view: MarkdownView) {
 }
 
 function slugify(text: string): string {
-  return text.toLowerCase().replace(/[^a-z0-9가-힣]+/g, "-").replace(/^-+|-+$/g, "");
+    const safeText = (text ?? "").toString();
+//   return text.toLowerCase().replace(/[^a-z0-9가-힣]+/g, "-").replace(/^-+|-+$/g, "");
+  return safeText.toLowerCase().replace(/[^a-z0-9가-힣]+/g, "-").replace(/^-+|-+$/g, "");
 }
 
 function linkifyTOCNode(node: TOCNode, level: number = 0): string[] {
   const indent = "  ".repeat(level);
   const id = slugify(node.title);
-  const line = `${indent}- [${node.title}](#${id})`;
+  const line = `${indent}${node.listSymbol} [${node.title}](#${id})`;
   const children = node.children.map(child => linkifyTOCNode(child, level + 1)).flat();
   return [line, ...children];
 }
-
-import { parseTOCFromMarkdown } from "./parser";

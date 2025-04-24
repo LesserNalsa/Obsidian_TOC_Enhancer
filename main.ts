@@ -1,5 +1,5 @@
-import { Plugin } from 'obsidian';
-import { generateTOCLinkeedSectons } from './updater';
+import { Plugin, MarkdownView } from 'obsidian';
+import { generateTOCLinkedSections } from './updater';
 
 export default class TOCEnchancerPlugin extends Plugin {
 
@@ -10,7 +10,7 @@ export default class TOCEnchancerPlugin extends Plugin {
 			callback: async () => {
 				const activeView = this.app.workspace.getActiveViewOfType(MarkdownView);
 				if(!activeView) return;
-				await generateTOCLinkeedSectons(activeView);
+				await generateTOCLinkedSections(activeView);
 			},
 		})
 	}
