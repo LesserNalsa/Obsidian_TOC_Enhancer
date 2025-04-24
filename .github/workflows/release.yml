@@ -1,5 +1,10 @@
 name: Build & Release TOC Enhancer
 
+permissions:
+  contents: write   # Release 생성 및 zip 첨부를 위한 권한 설정
+  packages: write
+  issues: write
+
 on:
   push:
     tags:
