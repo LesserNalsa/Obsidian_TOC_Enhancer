@@ -31,7 +31,7 @@ jobs:
     - name: Package plugin
       run: |
         mkdir release
-        cp dist/main.js manifest.json styles.css README.md release/
+        cp main.js manifest.json styles.css README.md release/
         cd release && zip -r ../toc-enhancer-${{ github.ref_name }}.zip . && cd ..
 
     # 5) Release 생성 + zip 첨부
