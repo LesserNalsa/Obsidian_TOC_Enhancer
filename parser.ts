@@ -41,8 +41,6 @@
       const match = line.match(LIST_LINE_REGEX);
       if (!match) continue;
   
-      console.log("match 0: " + match[0] + " match 1: " + match[1] + " match 2: " + match[2] + " match 3: " + match[3]);
-
       const indent = match[1].length;
       const listSymbol = match[2];
       const title = match[3];

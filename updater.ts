@@ -1,4 +1,5 @@
 import { TOCNode, parseTOCFromMarkdown, IS_ORDERED_LIST_REGEX } from "./parser";
+import { romanize } from "hangul-romanize";
 import { MarkdownView } from "obsidian";
 
 export async function generateTOCLinkedSections(view: MarkdownView) {
@@ -70,13 +71,23 @@ export async function generateTOCLinkedSections(view: MarkdownView) {
 
 function slugify(text: string): string {
     const safeText = (text ?? "").toString();
-//   return text.toLowerCase().replace(/[^a-z0-9가-힣]+/g, "-").replace(/^-+|-+$/g, "");
-  return safeText.toLowerCase().replace(/[^a-z0-9가-힣]+/g, "-").replace(/^-+|-+$/g, "");
+    //   return text.toLowerCase().replace(/[^a-z0-9가-힣]+/g, "-").replace(/^-+|-+$/g, "");
+    //   return safeText.toLowerCase().replace(/[^a-z0-9가-힣]+/g, "-").replace(/^-+|-+$/g, "");
+    return romanize(safeText)
+    .normalize("NFD")                    // 유니코드 분해
+    .replace(/[\u0300-\u036f]/g, "")     // 발음 기호 제거
+    .replace(/[^\w\s-]/g, "")            // 특수문자 제거 (한글도 제거됨)
+    .trim()
+    .replace(/\s+/g, "-")                // 공백 → 하이픈
+    .replace(/--+/g, "-")                // 중복 하이픈 제거
+    .replace(/^-+|-+$/g, "")             // 양 끝 하이픈 제거
+    .toLowerCase();                      // 소문자 처리
 }
 
 function linkifyTOCNode(node: TOCNode, level: number = 0): string[] {
   const indent = "  ".repeat(level);
   const id = slugify(node.title);
+  console.log("Inserting section:", node.title, "-> id: ", id);
   const line = `${indent}${node.listSymbol} [${node.title}](#${id})`;
   const children = node.children.map(child => linkifyTOCNode(child, level + 1)).flat();
   return [line, ...children];
